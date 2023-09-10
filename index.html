@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uber Eat</title>
+    <script src="https://www.unpkg.com/vue@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="bg-gray-100">
+        <button @click="showForm = !showForm" class="text-white font-bold py-2 px-4 rounded mt-4 ml-1">
+            <span v-if="showForm" class="bg-red-500 hover:bg-red-700 text-white rounded px-2 border-0 ml-20 pb-1 pt-1 pl-2 pr-2">X</span>
+            <span v-else class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Ajouter une nouvelle carte +</span>
+        </button>
+
+        <div v-if="showForm" class="bg-gray-100 p-4 ml-20">
+            <h2 class="text-xl font-bold mb-2">Ajouter une nouvelle carte</h2>
+            <form @submit.prevent="addRestaurant" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Nom :</label>
+                        <input v-model="newRestaurant.name" type="text" id="name" name="name" class="w-full rounded-md shadow-sm border-gray-300 shadow-black focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 py-2 px-3 text-gray-700" required maxlength="25">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="deliveryTime">Temps de livraison :</label>
+                        <input v-model="newRestaurant.deliveryTime" type="text" id="deliveryTime" name="deliveryTime" class="w-full rounded-md shadow-sm border-gray-300 shadow-black focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 py-2 px-3 text-gray-700" required maxlength="25">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="description">Description :</label>
+                        <textarea v-model="newRestaurant.description" id="description" name="description" class="w-full rounded-md shadow-sm border-gray-300 focus:border-blue-300 shadow-black focus:ring focus:ring-blue-200 focus:ring-opacity-50 py-2 px-3 text-gray-700" required maxlength="73"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="ImgName">Nom de l'image :</label>
+                        <input v-model="newRestaurant.ImgName" type="text" id="ImgName" name="ImgName" class="w-full rounded-md shadow-sm border-gray-300 focus:border-blue-300 shadow-black focus:ring shadow-black focus:ring-blue-200 focus:ring-opacity-50 py-2 px-3 text-gray-700" required maxlength="50">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold shadow-black py-2 px-4 rounded">
+                        Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="container mx-auto px-4 py-8 grid grid-cols-3 gap-4" v-if="restaurants.length >= 3">
+            <card v-for="(restaurant, index) in restaurants" :key="index" :content="restaurant"></card>
+        </div>
+        <div class="container mx-auto px-4 py-8 grid grid-cols-4 gap-4" v-else>
+            <card v-for="(restaurant, index) in restaurants" :key="index" :content="restaurant"></card>
+        </div>
+    </div>
+    <script>
+        const vm = Vue.createApp({
+            data() {
+                return {
+                    restaurants: [
+                        {
+                            name: 'Carrefour',
+                            deliveryTime: '30 minutes',
+                            description: 'Fresh groceries delivered to your doorstep.',
+                            ImgName: 'carrefour.jpg'
+                        },
+                        {
+                            name: 'Monoprix',
+                            deliveryTime: '25 minutes',
+                            description: 'Quality products for your daily needs.',
+                            ImgName: 'monoprix.jpg'
+                        },
+                        {
+                            name: 'Mc Donalds',
+                            deliveryTime: '20 minutes',
+                            description: 'Fast food for the whole family. You need to try it!',
+                            ImgName: 'mcdonalds.jpg'
+                        }
+                    ],
+                    showForm: false,
+                    newRestaurant: {
+                        name: '',
+                        deliveryTime: '',
+                        description: '',
+                        ImgName: ''
+                    }
+                };
+            },
+            methods: {
+                addRestaurant() {
+                    this.restaurants.push({ ...this.newRestaurant });
+                    this.newRestaurant = {
+                        name: '',
+                        deliveryTime: '',
+                        description: '',
+                        ImgName: ''
+                    };
+                    this.showForm = false;
+                },
+                cancelForm() {
+                    this.newRestaurant = {
+                        name: '',
+                        deliveryTime: '',
+                        description: '',
+                        ImgName: ''
+                    };
+                    this.showForm = false;
+                }
+            }
+        });
+
+        vm.component('card', {
+            props: ['content'],
+            template: `
+            <div class="max-w-sm rounded overflow-hidden shadow-lg m-4 hover:shadow-xl hover:scale-105 transition-transform duration-300 ease-in-out">
+                <div class="h-52 overflow-hidden flex items-center justify-center">
+                    <img :src="'/img/' + content.ImgName" :alt="content.name" class="w-full">
+                </div>
+                <div class="px-6 py-4">
+                    <h2 class="font-bold text-xl mb-2">{{ content.name }}</h2>
+                    <p class="text-gray-700 text-base">Delivery Time: {{ content.deliveryTime }}</p>
+                    <p class="text-gray-700 text-base">Description: {{ content.description }}</p>
+                </div>
+            </div>
+            `
+        });
+
+        vm.mount('#app');
+    </script>
+</body>
+</html>
